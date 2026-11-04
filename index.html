@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zunex AI</title>
+<link rel="manifest" href="manifest.json">
+<meta name="description" content="Zunex AI: tarayıcıda yerel çalışan, API anahtarı gerektirmeyen asistan.">
+<link rel="icon" href="icon.svg">
+<meta name="theme-color" content="#6c4cf5">
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1b1d2a;--muted:#6b7089;--accent:#6c4cf5;--accent2:#3b82f6;--user:#6c4cf5;--userText:#fff;--bot:#fff;--border:#e3e5ef;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1119;--card:#181b27;--text:#eceefa;--muted:#8d92ad;--bot:#1d2130;--border:#2a2f44;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1119;--card:#181b27;--text:#eceefa;--muted:#8d92ad;--bot:#1d2130;--border:#2a2f44;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--border)}
+.logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:grid;place-items:center;font-weight:800}
+header h1{font-size:17px;margin:0;line-height:1.1}
+header small{color:var(--muted);font-size:12px}
+header .sp{flex:1}
+.ghost{background:none;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:7px 11px;font-size:13px;cursor:pointer}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex}
+.row.u{justify-content:flex-end}
+.b{max-width:min(720px,86%);padding:10px 14px;border-radius:16px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;font-size:15px}
+.u .b{background:var(--user);color:var(--userText);border-bottom-right-radius:5px}
+.a .b{background:var(--bot);border:1px solid var(--border);border-bottom-left-radius:5px}
+.b img{max-width:100%;max-height:240px;border-radius:10px;display:block;margin-bottom:6px}
+.file{display:inline-block;font-size:12px;padding:3px 8px;border-radius:8px;background:rgba(127,127,127,.18);margin-bottom:6px}
+.empty{margin:auto;text-align:center;color:var(--muted);max-width:340px}
+.empty .logo{margin:0 auto 12px;width:56px;height:56px;font-size:26px;border-radius:17px}
+.empty h2{color:var(--text);margin:0 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.chips button{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+footer{padding:10px 12px;background:var(--card);border-top:1px solid var(--border)}
+#att{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+#att:empty{display:none}
+.att{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:4px 8px;font-size:12px}
+.att img{width:28px;height:28px;object-fit:cover;border-radius:6px}
+.att button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px}
+.bar{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;resize:none;max-height:140px;min-height:42px;padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:15px;outline:none}
+textarea:focus{border-color:var(--accent)}
+.ic{width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-size:18px;flex:none}
+#send{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0;font-size:17px}
+#send:disabled{opacity:.5;cursor:default}
+.note{color:var(--muted);font-size:12px;text-align:center;margin-top:6px}
+.dots span{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:var(--muted);animation:d 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes d{0%,80%,100%{opacity:.25}40%{opacity:1}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Z</div>
+  <div><h1>Zunex AI</h1><small>Yerel asistan · internetsiz çalışır</small></div>
+  <div class="sp"></div>
+  <button class="ghost" id="clear">Sohbeti temizle</button>
+</header>
+<div id="msgs"></div>
+<footer>
+  <div id="att"></div>
+  <div class="bar">
+    <button class="ic" id="attach" title="Fotoğraf veya dosya ekle">📎</button>
+    <textarea id="inp" rows="1" placeholder="Zunex AI’a bir şey yaz…"></textarea>
+    <button class="ic" id="send" title="Gönder">➤</button>
+  </div>
+  <input type="file" id="file" multiple hidden accept="image/*,.txt,.md,.csv,.json,.js,.py,.html,.css,.log,.xml,.yaml,.yml">
+  <div class="note" id="note">Enter ile gönder, Shift+Enter ile yeni satır</div>
+</footer>
+<script src="knowledge.js"></script>
+<script src="assistant.js"></script>
+<script>
+(function(){
+  var HK="zunex-ai-history-v1",SK="zunex-ai-state-v2";
+  var $=function(id){return document.getElementById(id)};
+  var msgs=$("msgs"),inp=$("inp"),send=$("send"),att=$("att"),fileIn=$("file"),note=$("note");
+  var history=[],pending=[],state={name:"",last:"",pending:null};
+  var TEXTX=/\.(txt|md|csv|json|js|py|html|css|log|xml|ya?ml)$/i;
+
+  function load(){
+    try{var r=localStorage.getItem(HK);if(r)history=JSON.parse(r)||[]}catch(e){history=[]}
+    try{var s=localStorage.getItem(SK);if(s)state.name=(JSON.parse(s)||{}).name||""}catch(e){}
+  }
+  function save(){
+    try{localStorage.setItem(HK,JSON.stringify(history.slice(-100)));localStorage.setItem(SK,JSON.stringify({name:state.name}))}catch(e){}
+  }
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+  function scroll(){msgs.scrollTop=msgs.scrollHeight}
+
+  function bubble(role,text,extras){
+    var row=el("div","row "+(role==="user"?"u":"a")),b=el("div","b");
+    (extras||[]).forEach(function(x){
+      if(x.url){var im=el("img");im.src=x.url;im.alt=x.name;b.appendChild(im)}
+      else b.appendChild(el("div","file","📄 "+x.name));
+    });
+    b.appendChild(el("span",null,text));
+    row.appendChild(b);msgs.appendChild(row);scroll();
+  }
+  function renderAll(){
+    msgs.textContent="";
+    if(!history.length){
+      var e=el("div","empty");
+      e.appendChild(el("div","logo","Z"));
+      e.appendChild(el("h2",null,"Merhaba, ben Zunex AI"));
+      e.appendChild(el("div",null,"Tarayıcında yerel çalışan bir asistanım: hesap yapar, temel bilgi sorularını yanıtlar, dosya istatistikleri çıkarırım. Bilmediğimi açıkça söylerim."));
+      var c=el("div","chips");
+      ["Bana kendini tanıt","(12+8)*3 kaç eder?","Fransa’nın başkenti neresi?","Neler biliyorsun?"].forEach(function(s){
+        var bt=el("button",null,s);bt.onclick=function(){inp.value=s;doSend()};c.appendChild(bt);
+      });
+      e.appendChild(c);msgs.appendChild(e);return;
+    }
+    history.forEach(function(m){bubble(m.role,m.text,(m.files||[]).map(function(n){return{name:n}}))});
+  }
+  function renderAtt(){
+    att.textContent="";
+    pending.forEach(function(p,i){
+      var d=el("div","att");
+      if(p.url){var im=el("img");im.src=p.url;d.appendChild(im)}
+      d.appendChild(el("span",null,p.name));
+      var x=el("button",null,"×");x.onclick=function(){pending.splice(i,1);renderAtt()};
+      d.appendChild(x);att.appendChild(d);
+    });
+  }
+
+  $("attach").onclick=function(){fileIn.click()};
+  fileIn.onchange=function(){
+    Array.prototype.forEach.call(fileIn.files,function(f){
+      if(f.size>8*1024*1024){note.textContent="“"+f.name+"” çok büyük (en fazla 8 MB).";return}
+      var p={name:f.name,size:f.size};
+      if(f.type.indexOf("image/")===0){
+        p.kind="image";p.url=URL.createObjectURL(f);pending.push(p);renderAtt();
+        var im=new Image();im.onload=function(){p.width=im.naturalWidth;p.height=im.naturalHeight};im.src=p.url;
+      }else if(f.type.indexOf("text/")===0||TEXTX.test(f.name)){
+        var r=new FileReader();
+        r.onload=function(){var s=String(r.result);p.kind="text";p.truncated=s.length>30000;p.text=s.slice(0,30000);pending.push(p);renderAtt()};
+        r.onerror=function(){note.textContent="“"+f.name+"” okunamadı."};
+        r.readAsText(f);
+      }else{p.kind="binary";pending.push(p);renderAtt()}
+    });
+    fileIn.value="";
+  };
+
+  inp.addEventListener("input",function(){inp.style.height="auto";inp.style.height=Math.min(inp.scrollHeight,140)+"px"});
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();doSend()}});
+  send.onclick=doSend;
+  $("clear").onclick=function(){history=[];pending=[];state={name:"",last:"",pending:null};renderAtt();save();renderAll()};
+
+  function doSend(){
+    var text=inp.value.trim();
+    if(!text&&!pending.length)return;
+    var files=pending.slice();pending=[];renderAtt();
+    inp.value="";inp.style.height="auto";note.textContent="Enter ile gönder, Shift+Enter ile yeni satır";
+    var wasEmpty=!history.length;
+    history.push({role:"user",text:text||"(dosya gönderildi)",files:files.map(function(f){return f.name})});
+    if(wasEmpty)msgs.textContent="";
+    bubble("user",text||"(dosya gönderildi)",files.map(function(f){return{name:f.name,url:f.url}}));
+    var out;
+    try{out=ZunexAssistant.reply(text,{state:state,files:files})}
+    catch(err){out="Bir hata oluştu: "+(err&&err.message||"bilinmeyen hata")}
+    history.push({role:"assistant",text:out});
+    bubble("assistant",out);
+    save();inp.focus();
+  }
+
+  load();renderAll();
+  if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){navigator.serviceWorker.register("sw.js").catch(function(){})}
+})();
+</script>
+</body>
+</html>
